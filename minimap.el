@@ -246,8 +246,26 @@ working in."
   (interactive)
   (if (and minimap-window
            (window-live-p minimap-window))
-      (minimap-kill)
-    (minimap-create)))
+      (progn
+	;; Resizes buffer if option is set
+	(if minimap-resizes-buffer
+	    (set-frame-width
+	     (selected-frame)
+	     (round (- (frame-width)
+		       (* minimap-width-fraction
+			  (frame-width))))))
+
+	(minimap-kill))
+    (progn
+      ;; Resize if option set
+      (if minimap-resizes-buffer
+	  (set-frame-width (selected-frame)
+			   (1+ (round (+ (frame-width)
+					 (* minimap-width-fraction
+					    (* (1+ minimap-width-fraction)
+					       (frame-width))))))))
+
+      (minimap-create))))
 
 (defun minimap-buffer-name()
   "Get minimap buffer name for current buffer"
@@ -290,14 +308,6 @@ working in."
         (setq was_created t))
       
       ;;; BUFFER CREATION
-      ;; Resize if option set
-      (if minimap-resizes-buffer
-	  (set-frame-width (selected-frame)
-			   (1+ (round (+ (frame-width)
-					 (* minimap-width-fraction
-					    (* (1+ minimap-width-fraction)
-					       (frame-width))))))))
-
       (select-window minimap-window)
       (when minimap-dedicated-window
         (set-window-dedicated-p minimap-window nil))
@@ -363,14 +373,6 @@ Cancel the idle timer if no more minimaps are active."
   (if (null minimap-window)
       (message "No minimap window found.")
     ;; kill all minimap buffers
-
-    ;; Resizes buffer if option is set
-    (if minimap-resizes-buffer
-	(set-frame-width
-	 (selected-frame)
-	 (round (- (frame-width)
-		      (* minimap-width-fraction
-			 (frame-width))))))
 
     (set-window-dedicated-p minimap-window nil)
     (dolist (ele (buffer-list))
