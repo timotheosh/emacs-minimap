@@ -215,6 +215,14 @@ minimap buffer."
   :type '(repeat symbol)
   :group 'minimap)
 
+(defcustom minimap-resizes-buffer nil
+  "Whether or not the currently active window should be resized.
+When a minimap buffer is created or destroyed, this option will permit
+or deny the ability for the Minimap mode to resize the window you are
+working in."
+  :type 'boolean
+  :group 'minimap)
+
 ;;; Internal variables
 
 (defvar minimap-start nil)
@@ -282,6 +290,14 @@ minimap buffer."
         (setq was_created t))
       
       ;;; BUFFER CREATION
+      ;; Resize if option set
+      (if minimap-resizes-buffer
+	  (set-frame-width (selected-frame)
+			   (1+ (round (+ (frame-width)
+					 (* minimap-width-fraction
+					    (* (1+ minimap-width-fraction)
+					       (frame-width))))))))
+
       (select-window minimap-window)
       (when minimap-dedicated-window
         (set-window-dedicated-p minimap-window nil))
@@ -347,6 +363,15 @@ Cancel the idle timer if no more minimaps are active."
   (if (null minimap-window)
       (message "No minimap window found.")
     ;; kill all minimap buffers
+
+    ;; Resizes buffer if option is set
+    (if minimap-resizes-buffer
+	(set-frame-width
+	 (selected-frame)
+	 (round (- (frame-width)
+		      (* minimap-width-fraction
+			 (frame-width))))))
+
     (set-window-dedicated-p minimap-window nil)
     (dolist (ele (buffer-list))
       (when (string-match minimap-buffer-name-prefix (buffer-name ele))
