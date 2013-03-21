@@ -217,8 +217,8 @@ minimap buffer."
 
 (defcustom minimap-resizes-buffer nil
   "Whether or not the currently active window should be resized.
-When a minimap buffer is created or destroyed, this option will permit
-or deny the ability for the Minimap mode to resize the window you are
+When a minimap buffer is toggled, this option will permit or deny
+the ability for the Minimap mode to resize the window you are
 working in."
   :type 'boolean
   :group 'minimap)
@@ -254,17 +254,16 @@ working in."
 	     (round (- (frame-width)
 		       (* minimap-width-fraction
 			  (frame-width))))))
-
 	(minimap-kill))
     (progn
       ;; Resize if option set
       (if minimap-resizes-buffer
-	  (set-frame-width (selected-frame)
-			   (1+ (round (+ (frame-width)
-					 (* minimap-width-fraction
-					    (* (1+ minimap-width-fraction)
-					       (frame-width))))))))
-
+	  (set-frame-width
+	   (selected-frame)
+	   (1+ (round (+ (frame-width)
+			 (* minimap-width-fraction
+			    (* (1+ minimap-width-fraction)
+			       (frame-width))))))))
       (minimap-create))))
 
 (defun minimap-buffer-name()
