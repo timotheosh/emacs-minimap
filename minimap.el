@@ -251,19 +251,16 @@ working in."
 	(if minimap-resizes-buffer
 	    (set-frame-width
 	     (selected-frame)
-	     (round (- (frame-width)
-		       (* minimap-width-fraction
-			  (frame-width))))))
+	     (round (* (frame-width)
+		       (/ 1 (1+ minimap-width-fraction))))))
 	(minimap-kill))
     (progn
       ;; Resize if option set
       (if minimap-resizes-buffer
 	  (set-frame-width
 	   (selected-frame)
-	   (1+ (round (+ (frame-width)
-			 (* minimap-width-fraction
-			    (* (1+ minimap-width-fraction)
-			       (frame-width))))))))
+	   (round (* (frame-width)
+		     (1+ minimap-width-fraction)))))
       (minimap-create))))
 
 (defun minimap-buffer-name()
