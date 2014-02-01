@@ -39,7 +39,7 @@
 ;;  * Put minimap.el in your load path.
 ;;  * (require 'minimap)
 ;;  * Use 'M-x minimap-toggle' to toggle the minimap.
-;;  * Use 'M-x minimap-kill' to create the minimap.
+;;  * Use 'M-x minimap-create' to create the minimap.
 ;;  * Use 'M-x minimap-kill' to kill the minimap.
 ;;  * Use 'M-x customize-group RET minimap RET' to adapt minimap to your needs.
 
@@ -215,6 +215,14 @@ minimap buffer."
   :type '(repeat symbol)
   :group 'minimap)
 
+(defcustom minimap-resizes-buffer nil
+  "Whether or not the currently active window should be resized.
+When a minimap buffer is toggled, this option will permit or deny
+the ability for the Minimap mode to resize the window you are
+working in."
+  :type 'boolean
+  :group 'minimap)
+
 ;;; Internal variables
 
 (defvar minimap-start nil)
@@ -239,8 +247,22 @@ minimap buffer."
   (interactive)
   (if (and minimap-window
            (window-live-p minimap-window))
-      (minimap-kill)
-    (minimap-create)))
+      (progn
+	;; Resizes buffer if option is set
+	(if minimap-resizes-buffer
+	    (set-frame-width
+	     (selected-frame)
+	     (round (* (frame-width)
+		       (/ 1 (1+ minimap-width-fraction))))))
+	(minimap-kill))
+    (progn
+      ;; Resize if option set
+      (if minimap-resizes-buffer
+	  (set-frame-width
+	   (selected-frame)
+	   (round (* (frame-width)
+		     (1+ minimap-width-fraction)))))
+      (minimap-create))))
 
 (defun minimap-buffer-name()
   "Get minimap buffer name for current buffer"
@@ -348,6 +370,7 @@ Cancel the idle timer if no more minimaps are active."
   (if (null minimap-window)
       (message "No minimap window found.")
     ;; kill all minimap buffers
+
     (set-window-dedicated-p minimap-window nil)
     (dolist (ele (buffer-list))
       (when (string-match minimap-buffer-name-prefix (buffer-name ele))
