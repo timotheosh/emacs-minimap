@@ -233,6 +233,7 @@ minimap buffer."
 (make-variable-buffer-local 'minimap-numlines)
 (make-variable-buffer-local 'minimap-pointmin-overlay)
 
+;;;###autoload
 (defun minimap-toggle ()
   "Toggle the minimap."
   (interactive)
