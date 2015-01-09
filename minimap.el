@@ -223,6 +223,13 @@ working in."
   :type 'boolean
   :group 'minimap)
 
+(defcustom minimap-window-location 'left
+  "Location of the minimap window.
+Can be either the symbol `left' or `right'."
+  :type '(choice (const :tag "Left" left)
+                 (const :tag "Right" right))
+  :group 'minimap)
+
 ;;; Internal variables
 
 (defvar minimap-start nil)
@@ -297,9 +304,13 @@ working in."
               (kill-buffer)))
         ;; otherwise split current window
         (unless (split-window-horizontally
-                 (round (* (window-width) minimap-width-fraction)))
+                 (if (eq minimap-window-location 'right)
+                      (round (* (window-width) (- 1 minimap-width-fraction)))
+                   (round (* (window-width) minimap-width-fraction))))
           (message "Failed to create window. Try `delete-other-windows' (C-x 1) first.")
           (return nil))
+
+        (when (eq minimap-window-location 'right) (other-window 1))
         ;; save new window to variable
         (setq minimap-window (selected-window))
         (setq was_created t))
